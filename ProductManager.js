@@ -1,5 +1,3 @@
-// productManager.js
-
 const fs = require('fs');
 
 class ProductManager {
