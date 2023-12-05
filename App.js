@@ -1,32 +1,43 @@
 const express = require('express');
-const ProductManager = require('./ProductManager');
+const exphbs  = require('express-handlebars');
+const http = require('http');
+const socketIO = require('socket.io');
 
 const app = express();
 const port = 3000;
-const productManager = new ProductManager('productos.json');
 
-app.get('/products', (req, res) => {
-  const limit = req.query.limit;
-  let products = productManager.getAllProducts();
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
+app.set('views', __dirname + '/views');
 
-  if (limit) {
-    products = products.slice(0, parseInt(limit));
-  }
+const server = http.createServer(app);
+const io = socketIO(server);
 
-  res.json({ products });
+app.get('/', (req, res) => {
+    const productos = obtenerProductos();
+    res.render('home', { productos });
 });
 
-app.get('/products/:pid', (req, res) => {
-  const productId = req.params.pid;
-  const product = productManager.getProductById(productId);
-
-  if (product) {
-    res.json({ product });
-  } else {
-    res.status(404).json({ error: 'Producto no encontrado' });
-  }
+app.get('/realtimeproducts', (req, res) => {
+    const productos = obtenerProductos();
+    res.render('realTimeProducts', { productos });
 });
 
-app.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
+io.on('connection', (socket) => {
+    console.log('Cliente conectado');
+
+    const productos = obtenerProductos();
+    socket.emit('productos', productos);
+});
+
+function obtenerProductos() {
+    return [
+        { id: 1, nombre: 'Producto 1' },
+        { id: 2, nombre: 'Producto 2' },
+        // ...
+    ];
+}
+
+server.listen(port, () => {
+    console.log(`Servidor escuchando en http://localhost:${port}`);
 });
