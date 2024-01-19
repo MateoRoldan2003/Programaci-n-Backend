@@ -1,22 +1,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const productRoutes = require('./routes/productRoutes');
-const cartRoutes = require('./routes/cartRoutes');
+const session = require('express-session');
+const passport = require('./config/passport-config');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-mongoose.connect('mongodb://localhost:27017', { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.connection.on('error', (error) => console.error('Error de conexión a MongoDB:', error));
-mongoose.connection.once('open', () => console.log('Conexión exitosa a MongoDB'));
+mongoose.connect('http//', { useNewUrlParser: true, useUnifiedTopology: true });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(session({ secret: 'tu_secreto', resave: true, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.use('/api', productRoutes);
-app.use('/api', cartRoutes);
+app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
+app.listen(3000, () => {
+    console.log('Servidor iniciado en http://localhost:3000');
 });
