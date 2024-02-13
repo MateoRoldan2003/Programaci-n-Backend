@@ -1,19 +1,8 @@
 const express = require('express');
-const passport = require('passport');
 const router = express.Router();
+const authController = require('../../controllers/authController');
 
-router.post('/login', passport.authenticate('local', {
-  successRedirect: '/dashboard',
-  failureRedirect: '/login',
-  failureFlash: true
-}));
-
-router.post('/login-jwt', passport.authenticate('jwt', { session: false }), (req, res) => {
-  const token = generateJwtToken(req.user);
-  res.json({ token });
-});
-
-function generateJwtToken(user) {
-}
+router.post('/login', authController.login);
+router.post('/login-jwt', authController.loginJwt);
 
 module.exports = router;
