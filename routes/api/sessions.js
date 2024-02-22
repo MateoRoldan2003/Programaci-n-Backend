@@ -1,17 +1,12 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
+const authorizationMiddleware = require('../middlewares/authorizationMiddleware');
 
-router.get('/current-session', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json({ user: req.user });
-  } else {
-    res.status(401).json({ message: 'Unauthorized' });
-  }
-});
-
-router.get('/current-jwt', passport.authenticate('jwt', { session: false }), (req, res) => {
-  res.json({ user: req.user });
+router.get('/current', passport.authenticate('jwt', { session: false }), authorizationMiddleware.isUser, (req, res) => {
+  const userDTO = {
+  };
+  res.json({ user: userDTO });
 });
 
 module.exports = router;
